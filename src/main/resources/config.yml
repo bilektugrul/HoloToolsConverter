@@ -1,0 +1,4 @@
+db-name: skyblock
+table-name: holotools_players
+sql-username: root
+sql-password: ''

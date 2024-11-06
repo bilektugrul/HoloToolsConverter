@@ -1,0 +1,4 @@
+name: HoloToolsConverter
+version: '1.0-SNAPSHOT'
+main: io.github.bilektugrul.htc.HoloToolsConverter
+api-version: '1.20'
