@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.sql.*;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -114,39 +112,42 @@ public class HoloToolsConverter extends JavaPlugin {
 
         for (String uuid : file.getKeys(false)) {
 
-            Map<String, String[]> slots = new HashMap<>();
+            JsonObject fullJson = new JsonObject();
+            JsonObject wardrobe = new JsonObject();
 
             for (String slot : file.getConfigurationSection(uuid).getKeys(false)) {
+                JsonObject slotJson = new JsonObject();
+
                 String helmetStr = file.getString(uuid + "." + slot + ".helmet");
-                String chestplateStr = file.getString(uuid + "." + slot + ".chesplate");
+                String chestplateStr = file.getString(uuid + "." + slot + ".chestplate");
                 String leggingsStr = file.getString(uuid + "." + slot + ".leggings");
                 String bootsStr = file.getString(uuid + "." + slot + ".boots");
 
-                String helmet = null, chestplate = null, leggings = null, boots = null;
+                String helmet, chestplate, leggings, boots;
                 if (helmetStr != null) {
                     helmet = serializeItemStack(deserializeFromBase64(helmetStr));
+                    slotJson.add("helmet", new JsonPrimitive(helmet));
                 }
 
                 if (chestplateStr != null) {
                     chestplate = serializeItemStack(deserializeFromBase64(chestplateStr));
+                    slotJson.add("chestplate", new JsonPrimitive(chestplate));
                 }
 
                 if (leggingsStr != null) {
                     leggings = serializeItemStack(deserializeFromBase64(leggingsStr));
+                    slotJson.add("leggings", new JsonPrimitive(leggings));
                 }
 
                 if (bootsStr != null) {
                     boots = serializeItemStack(deserializeFromBase64(bootsStr));
+                    slotJson.add("boots", new JsonPrimitive(boots));
                 }
 
-                slots.put(slot, new String[]{helmet, chestplate, leggings, boots});
+                wardrobe.add(slot, new JsonPrimitive(String.valueOf(slotJson)));
             }
 
-            Gson gson = new Gson();
-            String slotsJson = gson.toJson(slots);
-            JsonObject fullJson = new JsonObject();
-            fullJson.add("holo_wardrobe", new JsonPrimitive(slotsJson));
-
+            fullJson.add("holo_wardrobe", wardrobe);
             String statementStr = "UPDATE `" + tableName + "` SET `data` = ? WHERE `uuid` = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(statementStr)) {
