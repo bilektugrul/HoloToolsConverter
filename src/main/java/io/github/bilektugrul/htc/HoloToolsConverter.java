@@ -38,14 +38,6 @@ public class HoloToolsConverter extends JavaPlugin {
             convert1204();
         } else {
             getServer().getScheduler().runTaskAsynchronously(this, this::convert121);
-            getServer().getScheduler().runTaskTimer(this, (runnable) -> {
-                if (convertRunning) {
-                    getLogger().info("Convert still running...");
-                    getLogger().info("Converted player data: " + converted);
-                } else {
-                    runnable.cancel();
-                }
-            }, 0, 20);
         }
 
     }
@@ -73,7 +65,6 @@ public class HoloToolsConverter extends JavaPlugin {
                     reader.setLenient(true);
 
                     JsonElement element = JsonParser.parseReader(reader);
-                    //System.out.println(element.toString());
 
                     JsonPrimitive helmetEnc = element.getAsJsonObject().getAsJsonPrimitive("helmet");
                     JsonPrimitive chestplateEnc = element.getAsJsonObject().getAsJsonPrimitive("chestplate");
@@ -126,7 +117,6 @@ public class HoloToolsConverter extends JavaPlugin {
             Map<String, String[]> slots = new HashMap<>();
 
             for (String slot : file.getConfigurationSection(uuid).getKeys(false)) {
-
                 String helmetStr = file.getString(uuid + "." + slot + ".helmet");
                 String chestplateStr = file.getString(uuid + "." + slot + ".chesplate");
                 String leggingsStr = file.getString(uuid + "." + slot + ".leggings");
@@ -163,8 +153,7 @@ public class HoloToolsConverter extends JavaPlugin {
                 preparedStatement.setString(1, new Gson().toJson(fullJson));
                 preparedStatement.setString(2, uuid);
 
-                int rowsUpdated = preparedStatement.executeUpdate();
-                System.out.println("Rows updated: " + rowsUpdated);
+                preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -212,9 +201,4 @@ public class HoloToolsConverter extends JavaPlugin {
         }
     }
 
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-    }
 }
